@@ -1,20 +1,27 @@
 #!/usr/bin/python3
 """
-Finding hot top 10 post
+recursive
 """
 import requests
 
 
-def top_ten(subreddit):
-    url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
+def recurse(subreddit, hot_list=[], after=''):
+    subreddit_url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
     headers = {'User-Agent': 'Myapi-app'}
+    parameter = {'after': after}
 
-    r = requests.get(url+'?limit=10', headers=headers)
+    r = requests.get(subreddit_url, headers=headers, params=parameter,
+                     allow_redirects=False)
     if r.status_code == 200:
-        value = r.json()
-        datas = value['data']['children']
-        for each in datas:
+        datas = r.json()
+        values = datas['data']['children']
+
+        for each in values:
             title = each['data']['title']
-            print(title)
-    else:
-        print('None')
+            hot_list.append(title)
+        after = datas['data']['after']
+
+        if after is not None:
+            return recurse(subreddit, hot_list, after)
+        return hot_list
+    return None
