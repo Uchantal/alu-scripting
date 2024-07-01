@@ -1,27 +1,19 @@
 #!/usr/bin/python3
 """
-recursive
+function that queries the 'Reddit API'
+and prints the titles of the first 10 hot posts listed for a given subreddit.
 """
 import requests
 
 
-def recurse(subreddit, hot_list=[], after=''):
-    subreddit_url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
-    headers = {'User-Agent': 'Myapi-app'}
-    parameter = {'after': after}
-
-    r = requests.get(subreddit_url, headers=headers, params=parameter,
-                     allow_redirects=False)
-    if r.status_code == 200:
-        datas = r.json()
-        values = datas['data']['children']
-
-        for each in values:
-            title = each['data']['title']
-            hot_list.append(title)
-        after = datas['data']['after']
-
-        if after is not None:
-            return recurse(subreddit, hot_list, after)
-        return hot_list
-    return None
+def top_ten(subreddit):
+    """ prints the titles of the first 10 hot posts listed in a subreddit """
+    url = 'https://www.reddit.com/r/{}/hot.json?limit=10'.format(subreddit)
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    response = requests.get(url, headers=headers, allow_redirects=False)
+    if response.status_code != 200:
+        print(None)
+        return
+    posts = response.json()['data']['children']
+    for post in posts:
+        print(post['data']['title'])
